@@ -1,49 +1,76 @@
-import { ResourcePicker } from "@shopify/app-bridge-react";
+import { ResourcePicker, TitleBar } from "@shopify/app-bridge-react";
 import { Page } from "@shopify/polaris";
-import Axios from "axios";
+import reviews from "../reviews.json"
+import store from "store-js"
+import { useState } from "react";
+import { useEffect } from "react";
+import ProductList from "../components/ResourceList";
+import axios from "axios";
 
-class Index extends React.Component {
-  state = {
-    open: false
-  }
+const Index = () => {
 
-  render() {
-    return (
-      <Page
-        title="Product Selector"
-        primaryAction={{
-          content: "Select products",
-          onAction: () => this.setState({ open: true })
-        }}>
-        <ResourcePicker
-          resourceType="Product"
-          open={this.state.open}
-          onCancel={() => this.setState({
-            open: false
-          })}
-          onSelection={(resources) => this.getReviewsFromEtsy()} />
-      </Page>)
-  }
+  const [open, setOpen] = useState(false)
+  const [ratings, setRatings] = useState([])
 
-  handleSelection = (resources) => {
-    this.setState({ open: false })
+
+  const handleSelection = (resources) => {
     const arrayOfIds = resources.selection.map((product) => product.id)
-    console.log(arrayOfIds)
+
+    store.set("ids", arrayOfIds)
+
+    const selectedProducts = resources.selection
+
+    deleteApiData()
+
+    selectedProducts.map(product => makeApiCall(product))
+    setOpen(false)
   }
 
-  getReviewsFromEtsy = () => {
-    const test = fetch("https://openapi.etsy.com/v2/users/lyxngoap/feedback/from-buyers?api_key=u1p9defkmxo3ny0znhlzjtsv", {
-      mode: 'cors',
-      method: 'GET',
-    }).then(response => {
-      console.log(response)
-      return response;
-    }).then(json => {
-      console.log(json)
-    });
-
-    return test
+  const deleteApiData = () => {
+    const url = "/api/products"
+    axios.delete(url)
   }
+
+  const makeApiCall = async (product) => {
+    const url = "/api/products"
+
+    axios.post(url, product).then(res => {
+      console.log(res);
+    }).catch(error => {
+      console.log(error)
+    })
+  }
+
+  const emptyState = !store.get("ids")
+
+  useEffect(() => {
+    setRatings(reviews)
+  }, [])
+
+
+
+
+  return (
+    <Page
+      title="Product Selector"
+      primaryAction={{
+        content: "Select products",
+        onAction: () => setOpen(true)
+      }}>
+      <TitleBar
+        primaryAction={{
+          content: "Select new Product",
+          onAction: () => setOpen(true)
+        }} />
+
+      <ResourcePicker
+        resourceType="Product"
+        open={open}
+        onCancel={() => setOpen(false)}
+        onSelection={(resources) => handleSelection(resources)} />
+      <ProductList />
+    </Page>)
 }
 
 export default Index;
+
