@@ -7,7 +7,11 @@ document.getElementsByTagName("head")[0].appendChild(script)
 
 
 function handler() {
-    const body = $(".shopify-section-feature-row");
+    const header = $('header.site-header').parent();
+    header.prepend('<div>Hello this is coming from the public folder<div>').css({ 'background-color': "orange", "text-align": "center" })
+
+
+    const body = $("body");
 
     body.css({
         "position": "relative"
@@ -59,12 +63,21 @@ function handler() {
     fetch("https://cors-anywhere.herokuapp.com/https://f2bcbb374c5b.ngrok.io/api/products?shop=https://fernando-amazing-store.myshopify.com/")
         .then(res => res.json())
         .then(data => {
+            console.log(data)
             makeApp(data.data)
         })
         .catch(err => {
             console.log(err)
         })
+
 }
+
+const makeHeader = (data) => {
+    const header = $('header.site-header').parent();
+    header.prepend(`<div>Hello this is coming from the public folder<div>`).css({ 'background-color': "orange", "text-align": "center" })
+}
+
+
 
 console.log("this is coming from script tag api!!!");
 

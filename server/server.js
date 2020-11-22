@@ -10,6 +10,7 @@ import session from "koa-session";
 import koaBody from "koa-body"
 
 import * as handlers from "./handlers/index";
+import axios from "axios";
 dotenv.config();
 const port = parseInt(process.env.PORT, 10) || 8081;
 const dev = process.env.NODE_ENV !== "production";
@@ -41,7 +42,7 @@ router.get("/api/reviews", async (ctx) => {
       data: data
     }
   } catch (error) {
-    console.log(err)
+    console.log(error)
   }
 })
 
